@@ -7,6 +7,23 @@ export async function GET(
 ) {
 	const person = (await params).person;
 
+	if (person === "counts") {
+		const Kdata = (
+			await sql`select count(*) from homeworks where pname='khang'`
+		)[0].count;
+		const Ndata = (
+			await sql`select count(*) from homeworks where pname='ngân'`
+		)[0].count;
+		console.log(Kdata, Ndata);
+		return Response.json({
+			status: 200,
+			body: {
+				Khang: Kdata,
+				Ngân: Ndata,
+			},
+		});
+	}
+
 	const data =
 		await sql`select id,hwname,pname,type,status,statusmessage,deadlines,description from homeworks where pname=${person}`;
 	if (!data[0]) {
