@@ -8,6 +8,7 @@ import clsx from "clsx";
 import { useRef, useEffect, useState } from "react";
 
 function Task(props: {
+	id: number;
 	hwname: string;
 	pname: string;
 	type: string;
@@ -41,6 +42,7 @@ function Task(props: {
 	 * The component also includes a function to handle file upload and status updates.
 	 */
 	const {
+		id,
 		hwname,
 		pname,
 		type,
@@ -80,7 +82,8 @@ function Task(props: {
 		const dropArea = droparea.current;
 		const dropView = dropview.current;
 		const inputFile = inputfile.current;
-		if (!dropArea || !dropView || !inputFile) return;
+		if (!dropArea || !dropView || !inputFile || taskStatus === "success")
+			return;
 
 		//Function to change the drop view to active
 		const active = () => {
@@ -118,8 +121,6 @@ function Task(props: {
 				["dragleave", "drop"].forEach((eventName: string) => {
 					dropView?.removeEventListener(eventName, inactive);
 				});
-				//TODO: transform json upload data to form data
-
 				//Handle file drop event
 				const uploadDataJSON = {
 					HomeworkName: hwname.toLowerCase(),
@@ -168,7 +169,6 @@ function Task(props: {
 		["dragleave", "drop"].forEach((eventName: string) => {
 			dropView.addEventListener(eventName, inactive);
 		});
-		//TODO: When an file enter the drop area, transfer the current drop area to drop view to maintain the drop view.
 
 		dropView.addEventListener("drop", (e) => {
 			e.preventDefault();
@@ -177,6 +177,10 @@ function Task(props: {
 				inputFile.files = dataTransfer;
 				checkFile();
 			}
+		});
+		inputFile.addEventListener("change", (e) => {
+			e.preventDefault();
+			checkFile();
 		});
 	}, []);
 
@@ -217,14 +221,22 @@ function Task(props: {
 				{taskStatusMessage}
 			</p>
 			<p>{description}</p>
-			<input id="inputfile" ref={inputfile} type="file" accept=".cpp" hidden />
-			<div className="flex w-full items-center justify-end gap-x-3">
-				{currentStatusView}
-				<label htmlFor="inputfile" className="flex">
-					<p className="text-md cursor-pointer rounded-xl bg-green-400 p-2 font-bold">
-						NỘP BÀI
-					</p>
-				</label>
+			<div className={clsx("w-full", { "hidden!": taskStatus === "success" })}>
+				<input
+					id={`inputfile${id}`}
+					ref={inputfile}
+					type="file"
+					accept=".cpp"
+					hidden
+				/>
+				<div className="flex w-full items-center justify-end gap-x-3">
+					{currentStatusView}
+					<label htmlFor={`inputfile${id}`} className="flex">
+						<p className="text-md cursor-pointer rounded-xl bg-green-400 p-2 font-bold">
+							NỘP BÀI
+						</p>
+					</label>
+				</div>
 			</div>
 		</div>
 	);
@@ -241,6 +253,7 @@ export default function HomeworkPage() {
 				.then((data) => {
 					const pendingTasks = data.data.pending.map((e: any) => (
 						<Task
+							id={e.id}
 							hwname={e.hwname}
 							pname="khang"
 							type={e.type}
@@ -253,6 +266,7 @@ export default function HomeworkPage() {
 					));
 					const successTasks = data.data.success.map((e: any) => (
 						<Task
+							id={e.id}
 							hwname={e.hwname}
 							pname="khang"
 							type={e.type}
@@ -265,6 +279,7 @@ export default function HomeworkPage() {
 					));
 					const failedTasks = data.data.failed.map((e: any) => (
 						<Task
+							id={e.id}
 							hwname={e.hwname}
 							pname="khang"
 							type={e.type}
@@ -282,6 +297,7 @@ export default function HomeworkPage() {
 				.then((data) => {
 					const pendingTasks = data.data.pending.map((e: any) => (
 						<Task
+							id={e.id}
 							hwname={e.hwname}
 							pname="ngân"
 							type={e.type}
@@ -294,6 +310,7 @@ export default function HomeworkPage() {
 					));
 					const successTasks = data.data.success.map((e: any) => (
 						<Task
+							id={e.id}
 							hwname={e.hwname}
 							pname="ngân"
 							type={e.type}
@@ -306,6 +323,7 @@ export default function HomeworkPage() {
 					));
 					const failedTasks = data.data.failed.map((e: any) => (
 						<Task
+							id={e.id}
 							hwname={e.hwname}
 							pname="ngân"
 							type={e.type}

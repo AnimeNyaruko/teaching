@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import sql from "@/utils/database";
+import { NextResponse } from "next/server";
 
 export async function GET(
 	request: Request,
@@ -28,8 +29,7 @@ export async function GET(
 	if (!data[0]) {
 		return Response.json({ status: 404 });
 	}
-	console.log(data);
-	return Response.json({
+	return NextResponse.json({
 		status: 200,
 		data: {
 			pending: data.filter((hw: any) => hw.status === "pending") || [],

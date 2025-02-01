@@ -1,5 +1,6 @@
 import btb64 from "@/utils/tools";
 import sql from "@/utils/database";
+import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
 	const requestData = await request.formData();
@@ -9,11 +10,9 @@ export async function POST(request: Request) {
 	const type = requestData.get("type");
 
 	const base64 = await btb64(requestData.get("file") as Blob);
-	sql`update homeworks set file = ${base64} where hwname = ${hwname} and pname = ${pname} and type = ${type}`
-		.then(() => {
-			return Response.json({ status: 200 });
-		})
-		.catch(() => {
-			return Response.json({ status: 500 });
-		});
+	console.log(base64);
+	const data =
+		await sql`update homeworks set file = ${base64} where hwname = ${hwname} and pname = ${pname} and type = ${type} RETURNING *`;
+	if (data.length > 0) return NextResponse.json({ status: 200 });
+	return NextResponse.json({ status: 500 });
 }
