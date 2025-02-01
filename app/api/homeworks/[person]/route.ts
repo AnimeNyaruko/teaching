@@ -9,12 +9,11 @@ export async function GET(
 
 	if (person === "counts") {
 		const Kdata = (
-			await sql`select count(*) from homeworks where pname='khang'`
+			await sql`select count(*) from homeworks where pname='khang' and (status='pending' or status='failed')`
 		)[0].count;
 		const Ndata = (
-			await sql`select count(*) from homeworks where pname='ngân'`
+			await sql`select count(*) from homeworks where pname='ngân' and (status='pending' or status='failed')`
 		)[0].count;
-		console.log(Kdata, Ndata);
 		return Response.json({
 			status: 200,
 			body: {
