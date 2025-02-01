@@ -10,7 +10,6 @@ export async function POST(request: Request) {
 	const type = requestData.get("type");
 
 	const base64 = await btb64(requestData.get("file") as Blob);
-	console.log(base64);
 	const data =
 		await sql`update homeworks set file = ${base64} where hwname = ${hwname} and pname = ${pname} and type = ${type} RETURNING *`;
 	if (data.length > 0) return NextResponse.json({ status: 200 });

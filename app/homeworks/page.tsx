@@ -347,14 +347,14 @@ export default function HomeworkPage() {
 
 	return (
 		<div className="flex h-screen w-screen items-center justify-center">
-			<div className="grid h-[90%] w-full border-collapse grid-cols-2 grid-rows-1">
-				<div className="flex grow flex-col items-center overflow-y-auto border-r-2 border-solid border-white p-10">
+			<div className="grid h-[90%] w-full grid-cols-2 grid-rows-1">
+				<div className="custom-scrollbar-left flex grow flex-col items-center overflow-y-auto border-r-2 border-solid border-white p-10">
 					<header className="mb-7 text-7xl font-bold text-white">KHANG</header>
 					<div className="flex w-full flex-col items-center gap-y-5 first:mt-3! last:mb-3!">
 						{KTask}
 					</div>
 				</div>
-				<div className="flex grow flex-col items-center overflow-y-auto border-l-2 border-solid border-white p-10">
+				<div className="custom-scrollbar-right flex grow flex-col items-center overflow-y-auto border-l-2 border-solid border-white p-10">
 					<header className="mb-7 text-7xl font-bold text-white">NGÂN</header>
 					<div className="flex w-full flex-col items-center gap-y-5 first:mt-3! last:mb-3!">
 						{NTask}
