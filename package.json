@@ -16,13 +16,16 @@
 		"@fortawesome/free-regular-svg-icons": "^6.7.2",
 		"@fortawesome/free-solid-svg-icons": "^6.7.2",
 		"@fortawesome/react-fontawesome": "^0.2.2",
-		"@supabase/supabase-js": "^2.48.1",
+		"@neondatabase/serverless": "^0.10.4",
 		"@tailwindcss/cli": "^4.0.0",
+		"buffer": "^6.0.3",
 		"clsx": "^2.1.1",
 		"concurrently": "^9.1.0",
 		"next": "15.1.0",
 		"react": "^19.0.0",
 		"react-dom": "^19.0.0",
+		"socket.io": "^4.8.1",
+		"socket.io-client": "^4.8.1",
 		"tailwindcss": "^4.0.0"
 	},
 	"devDependencies": {
@@ -42,5 +45,9 @@
 		"plugins": [
 			"prettier-plugin-tailwindcss"
 		]
+	},
+	"optionalDependencies": {
+		"bufferutil": "^4.0.9",
+		"utf-8-validate": "^6.0.5"
 	}
 }

@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 body {
 	position: relative;
 	background-color: rgb(0, 1, 27);
@@ -54,21 +54,21 @@ strong {
 	ul > li {
 		position: relative;
 	}
-	.notiContainer {
-		height: 100%;
-		position: absolute;
-		right: 0;
-		display: block;
-		> * {
-			border-radius: 1rem;
-			height: 75%;
-			overflow-x: hidden;
-			overflow-y: scroll;
-			scrollbar-color: #838383 transparent;
-			.notifications {
-				-webkit-animation: appear 500ms ease-out forwards;
-				animation: appear 500ms ease-out forwards;
-			}
+}
+.notiContainer {
+	height: 100%;
+	position: absolute;
+	right: 0;
+	display: block;
+	> * {
+		border-radius: 1rem;
+		height: 75%;
+		overflow-x: hidden;
+		overflow-y: scroll;
+		scrollbar-color: #838383 transparent;
+		.notifications {
+			-webkit-animation: appear 500ms ease-out forwards;
+			animation: appear 500ms ease-out forwards;
 		}
 	}
 }
