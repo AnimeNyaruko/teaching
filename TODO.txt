@@ -6,8 +6,4 @@ Make a Task component that have:
 - Inherit from Task component in /homeworks
 
 Update Task component in /homeworks:
-- Add strict submit policy, only submit once. Ask again before an actual submittion
 - Add request to re-submit button
-
-FIX:
-- dropView and dropArea event listener does not removed on file submit.

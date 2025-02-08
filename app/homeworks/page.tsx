@@ -6,7 +6,7 @@ import { faCheck } from "@fortawesome/free-solid-svg-icons/faCheck";
 import { faX } from "@fortawesome/free-solid-svg-icons/faX";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import clsx from "clsx";
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useCallback, useMemo } from "react";
 
 function Task(props: {
 	id: number;
@@ -333,110 +333,113 @@ export default function HomeworkPage() {
 	const [KTask, setKTask] = useState<any>();
 	const [NTask, setNTask] = useState<any>();
 
-	useEffect(() => {
-		const getHomeworkData = () => {
-			fetch("api/homeworks/khang")
-				.then((res) => res.json())
-				.then((data) => {
-					const pendingTasks = data.data.pending.map((e: any) => (
-						<Task
-							id={e.id}
-							hwname={e.hwname}
-							pname="khang"
-							type={e.type}
-							file={e.file}
-							deadline={e.deadlines}
-							taskStatus={e.status}
-							taskStatusMessage={e.statusmessage}
-							description={e.description}
-							key={e.id}
-						/>
-					));
-					const successTasks = data.data.success.map((e: any) => (
-						<Task
-							id={e.id}
-							hwname={e.hwname}
-							pname="khang"
-							type={e.type}
-							file={e.file}
-							deadline={e.deadlines}
-							taskStatus={e.status}
-							taskStatusMessage={e.statusmessage}
-							description={e.description}
-							key={e.id}
-						/>
-					));
-					const failedTasks = data.data.failed.map((e: any) => (
-						<Task
-							id={e.id}
-							hwname={e.hwname}
-							pname="khang"
-							type={e.type}
-							file={e.file}
-							deadline={e.deadlines}
-							taskStatus={e.status}
-							taskStatusMessage={e.statusmessage}
-							description={e.description}
-							key={e.id}
-						/>
-					));
-					setKTask([pendingTasks, successTasks, failedTasks]);
-				});
-			fetch("api/homeworks/ngân")
-				.then((res) => res.json())
-				.then((data) => {
-					const pendingTasks = data.data.pending.map((e: any) => (
-						<Task
-							id={e.id}
-							hwname={e.hwname}
-							pname="ngân"
-							type={e.type}
-							file={e.file}
-							deadline={e.deadlines}
-							taskStatus={e.status}
-							taskStatusMessage={e.statusmessage}
-							description={e.description}
-							key={e.id}
-						/>
-					));
-					const successTasks = data.data.success.map((e: any) => (
-						<Task
-							id={e.id}
-							hwname={e.hwname}
-							pname="ngân"
-							type={e.type}
-							file={e.file}
-							deadline={e.deadlines}
-							taskStatus={e.status}
-							taskStatusMessage={e.statusmessage}
-							description={e.description}
-							key={e.id}
-						/>
-					));
-					const failedTasks = data.data.failed.map((e: any) => (
-						<Task
-							id={e.id}
-							hwname={e.hwname}
-							pname="ngân"
-							type={e.type}
-							file={e.file}
-							deadline={e.deadlines}
-							taskStatus={e.status}
-							taskStatusMessage={e.statusmessage}
-							description={e.description}
-							key={e.id}
-						/>
-					));
-					setNTask([pendingTasks, successTasks, failedTasks]);
-				});
-		};
+	const getHomeworkData = useCallback(() => {
+		fetch("api/homeworks/khang")
+			.then((res) => res.json())
+			.then((data) => {
+				const pendingTasks = data.data.pending.map((e: any) => (
+					<Task
+						id={e.id}
+						hwname={e.hwname}
+						pname="khang"
+						type={e.type}
+						file={e.file}
+						deadline={e.deadlines}
+						taskStatus={e.status}
+						taskStatusMessage={e.statusmessage}
+						description={e.description}
+						key={e.id}
+					/>
+				));
+				const successTasks = data.data.success.map((e: any) => (
+					<Task
+						id={e.id}
+						hwname={e.hwname}
+						pname="khang"
+						type={e.type}
+						file={e.file}
+						deadline={e.deadlines}
+						taskStatus={e.status}
+						taskStatusMessage={e.statusmessage}
+						description={e.description}
+						key={e.id}
+					/>
+				));
+				const failedTasks = data.data.failed.map((e: any) => (
+					<Task
+						id={e.id}
+						hwname={e.hwname}
+						pname="khang"
+						type={e.type}
+						file={e.file}
+						deadline={e.deadlines}
+						taskStatus={e.status}
+						taskStatusMessage={e.statusmessage}
+						description={e.description}
+						key={e.id}
+					/>
+				));
+				setKTask([pendingTasks, successTasks, failedTasks]);
+			});
+		fetch("api/homeworks/ngân")
+			.then((res) => res.json())
+			.then((data) => {
+				const pendingTasks = data.data.pending.map((e: any) => (
+					<Task
+						id={e.id}
+						hwname={e.hwname}
+						pname="ngân"
+						type={e.type}
+						file={e.file}
+						deadline={e.deadlines}
+						taskStatus={e.status}
+						taskStatusMessage={e.statusmessage}
+						description={e.description}
+						key={e.id}
+					/>
+				));
+				const successTasks = data.data.success.map((e: any) => (
+					<Task
+						id={e.id}
+						hwname={e.hwname}
+						pname="ngân"
+						type={e.type}
+						file={e.file}
+						deadline={e.deadlines}
+						taskStatus={e.status}
+						taskStatusMessage={e.statusmessage}
+						description={e.description}
+						key={e.id}
+					/>
+				));
+				const failedTasks = data.data.failed.map((e: any) => (
+					<Task
+						id={e.id}
+						hwname={e.hwname}
+						pname="ngân"
+						type={e.type}
+						file={e.file}
+						deadline={e.deadlines}
+						taskStatus={e.status}
+						taskStatusMessage={e.statusmessage}
+						description={e.description}
+						key={e.id}
+					/>
+				));
+				setNTask([pendingTasks, successTasks, failedTasks]);
+			});
+	}, []);
 
+	useEffect(() => {
 		const interval = setInterval(getHomeworkData, 1000 * 60 * 60);
 		getHomeworkData();
 		return () => {
 			clearInterval(interval);
 		};
-	}, []);
+	}, [getHomeworkData]);
+
+	const memoizedKTask = useMemo(() => KTask, [KTask]);
+	const memoizedNTask = useMemo(() => NTask, [NTask]);
 
 	return (
 		<div className="flex h-screen w-screen items-center justify-center">
@@ -444,13 +447,13 @@ export default function HomeworkPage() {
 				<div className="custom-scrollbar-left flex grow flex-col items-center overflow-y-auto border-l-2 border-solid border-white p-10">
 					<header className="mb-7 text-7xl font-bold text-white">KHANG</header>
 					<div className="flex w-full flex-col items-center gap-y-5 first:mt-3! last:mb-3!">
-						{KTask}
+						{memoizedKTask}
 					</div>
 				</div>
 				<div className="custom-scrollbar-right flex grow flex-col items-center overflow-y-auto border-l-2 border-solid border-white p-10">
 					<header className="mb-7 text-7xl font-bold text-white">NGÂN</header>
 					<div className="flex w-full flex-col items-center gap-y-5 first:mt-3! last:mb-3!">
-						{NTask}
+						{memoizedNTask}
 					</div>
 				</div>
 			</div>
