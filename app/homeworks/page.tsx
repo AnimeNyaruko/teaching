@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
+import { base64ToTextFile as b64tTF } from "@/utils/tools";
 import { faCheck } from "@fortawesome/free-solid-svg-icons/faCheck";
 import { faX } from "@fortawesome/free-solid-svg-icons/faX";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -12,6 +13,7 @@ function Task(props: {
 	hwname: string;
 	pname: string;
 	type: string;
+	file?: string;
 	deadline: string;
 	taskStatus: string;
 	taskStatusMessage: string;
@@ -46,6 +48,7 @@ function Task(props: {
 		hwname,
 		pname,
 		type,
+		file = "",
 		deadline,
 		taskStatus,
 		taskStatusMessage,
@@ -55,7 +58,44 @@ function Task(props: {
 	const droparea = useRef<HTMLDivElement>(null);
 	const dropview = useRef<HTMLParagraphElement>(null);
 	const inputfile = useRef<HTMLInputElement>(null);
+	const confirm = useRef<HTMLParagraphElement>(null);
+	const fileValue = useRef<any>(null);
+
 	const [currentStatusView, setStatusView] = useState<any>();
+	const [isReady, setReady] = useState(false);
+	const [isChecking, setCheckState] = useState(false);
+	const [isUpload, setUpload] = useState(false);
+	const [isRendered, setRender] = useState(false);
+
+	const dropArea = droparea.current;
+	const dropView = dropview.current;
+	const inputFile = inputfile.current;
+	const confirmButton = confirm.current;
+
+	//Check file extension
+	const CheckFileExtension = () => {
+		fileValue.current = inputFile?.files?.[0];
+		const value = fileValue.current.name.endsWith(".cpp");
+		if (!value) {
+			setStatusView(statusView("error"));
+		}
+		return value;
+	};
+
+	//Function to change the drop view to active
+	const active = () => {
+		dropView?.classList.remove("hidden");
+		dropView?.classList.add("flex");
+	};
+	//Function to change the drop view to inactive
+	const inactive = () => {
+		dropView?.classList.remove("flex");
+		dropView?.classList.add("hidden");
+	};
+	//Function to prevent default event
+	const prevent = (e: any) => {
+		e.preventDefault();
+	};
 
 	const statusView = (status: "loading" | "success" | "error") => {
 		switch (status) {
@@ -78,121 +118,124 @@ function Task(props: {
 		}
 	};
 
-	useEffect(() => {
-		const dropArea = droparea.current;
-		const dropView = dropview.current;
-		const inputFile = inputfile.current;
-		if (!dropArea || !dropView || !inputFile || taskStatus === "success")
-			return;
+	const checkFile = async () => {
+		if (!dropArea || !dropView || !inputFile) return;
+		if (taskStatus === "success" || file) return;
 
-		//Function to change the drop view to active
-		const active = () => {
-			dropView.classList.remove("hidden");
-			dropView.classList.add("flex");
-		};
-		//Function to change the drop view to inactive
-		const inactive = () => {
-			dropView.classList.remove("flex");
-			dropView.classList.add("hidden");
-		};
-		//Function to prevent default event
-		const prevent = (e: any) => {
-			e.preventDefault();
-		};
+		fileValue.current = inputFile.files?.[0];
 
-		const checkFile = async () => {
-			const file = inputFile.files?.[0];
-			if (file && file.name.endsWith(".cpp")) {
-				//Set status to loading
-				setStatusView(statusView("loading"));
-				//Disable the input file
-				inputFile.disabled = true;
-				//Remove input file event from the drop area
-				["dragenter", "dragover", "dragleave", "drop"].forEach(
-					(eventName: string) => {
-						dropArea?.removeEventListener(eventName, prevent);
-						dropView?.removeEventListener(eventName, prevent);
-					},
-				);
-				["dragenter", "dragover"].forEach((eventName: string) => {
-					dropArea?.removeEventListener(eventName, active);
-					dropView?.removeEventListener(eventName, active);
-				});
-				["dragleave", "drop"].forEach((eventName: string) => {
-					dropView?.removeEventListener(eventName, inactive);
-				});
-				//Handle file drop event
-				const uploadDataJSON = {
-					HomeworkName: hwname.toLowerCase(),
-					PersonName: pname.toLowerCase(),
-					type: type.toLowerCase(),
-					file: file,
-				};
+		if (!file) {
+			//Set status to loading
+			setStatusView(statusView("loading"));
+			setUpload(true);
+			//Disable the input file
+			inputFile.disabled = true;
+			//remove event listener to the input file
+			["dragenter", "dragover", "dragleave", "drop"].forEach(
+				(eventName: string) => {
+					dropArea?.removeEventListener(eventName, prevent);
+					dropView?.removeEventListener(eventName, prevent);
+				},
+			);
+			["dragover", "dragenter"].forEach((eventName: string) => {
+				dropArea?.removeEventListener(eventName, active);
+				dropView?.removeEventListener(eventName, active);
+			});
+			["dragleave", "drop"].forEach((eventName: string) => {
+				dropView?.removeEventListener(eventName, inactive);
+			});
 
-				const uploadFormData = new FormData();
-				for (const key of Object.keys(uploadDataJSON) as Array<
-					keyof typeof uploadDataJSON
-				>) {
-					uploadFormData.append(key, uploadDataJSON[key]);
-				}
+			//Handle file drop event
+			const uploadDataJSON = {
+				HomeworkName: hwname.toLowerCase(),
+				PersonName: pname.toLowerCase(),
+				type: type.toLowerCase(),
+				file: fileValue.current,
+			};
 
-				fetch("api/upload", {
-					method: "POST",
-					body: uploadFormData,
-				}).then(async (res) => {
-					const data = await res.json();
-					if (data.status === 200) {
-						//Set status view to success
-						setStatusView(statusView("success"));
-					} else setStatusView(statusView("error"));
-				});
-			} else {
-				setStatusView(statusView("error"));
+			const uploadFormData = new FormData();
+			for (const key of Object.keys(uploadDataJSON) as Array<
+				keyof typeof uploadDataJSON
+			>) {
+				uploadFormData.append(key, uploadDataJSON[key]);
 			}
-		};
+
+			fetch("api/upload", {
+				method: "POST",
+				body: uploadFormData,
+			}).then(async (res) => {
+				const data = await res.json();
+				if (data.status === 200) {
+					//Set status view to success
+					setStatusView(statusView("success"));
+					setReady(true);
+				} else setStatusView(statusView("error"));
+			});
+		} else {
+			setCheckState(false);
+		}
+	};
+
+	useEffect(() => {
+		if (!isRendered) {
+			setRender(true);
+			return;
+		}
+		if (taskStatus === "success" || file) return;
+
+		confirmButton!.addEventListener("click", (e: any) => {
+			e.preventDefault();
+			setCheckState(false);
+			checkFile();
+		});
 
 		//Add event listener to the input file
 		["dragenter", "dragover", "dragleave", "drop"].forEach(
 			(eventName: string) => {
-				dropArea.addEventListener(eventName, prevent);
-				dropView.addEventListener(eventName, prevent);
+				dropArea?.addEventListener(eventName, prevent);
+				dropView?.addEventListener(eventName, prevent);
 			},
 		);
 
 		//Add event listener to the drop area
 		["dragover", "dragenter"].forEach((eventName: string) => {
-			dropArea.addEventListener(eventName, active);
-			dropView.addEventListener(eventName, active);
+			dropArea?.addEventListener(eventName, active);
+			dropView?.addEventListener(eventName, active);
 		});
 
 		//Add event listener to the drop area
-		["dragleave", "drop"].forEach((eventName: string) => {
-			dropView.addEventListener(eventName, inactive);
+		["dragleave"].forEach((eventName: string) => {
+			dropView?.addEventListener(eventName, inactive);
 		});
 
-		dropView.addEventListener("drop", (e) => {
+		dropView?.addEventListener("drop", (e) => {
 			e.preventDefault();
+			inactive();
 			const dataTransfer = e.dataTransfer?.files;
 			if (dataTransfer) {
-				inputFile.files = dataTransfer;
-				checkFile();
+				inputFile!.files = dataTransfer;
+				if (!CheckFileExtension()) return;
+				else setStatusView(<></>);
+				setCheckState(true);
 			}
 		});
-		inputFile.addEventListener("change", (e) => {
+		inputFile?.addEventListener("change", (e) => {
 			e.preventDefault();
-			checkFile();
+			if (!CheckFileExtension()) return;
+			else setStatusView(<></>);
+			setCheckState(true);
 		});
-	}, []);
+	}, [isRendered]);
 
 	return (
 		<div
 			ref={droparea}
 			className={clsx(
-				"relative flex min-h-[10rem] w-full flex-col items-start rounded-2xl border-5 border-solid p-5 text-pretty",
+				"relative flex min-h-[10rem] w-full flex-col items-start rounded-2xl border-5 border-solid p-5 text-pretty [&_p]:text-white",
 				{
-					"border-green-400!": taskStatus === "success",
-					"border-red-400!": taskStatus === "failed",
-					"border-yellow-400!": taskStatus === "pending",
+					"border-green-700!": taskStatus === "success",
+					"border-red-700!": taskStatus === "failed",
+					"border-yellow-700!": taskStatus === "pending",
 				},
 			)}
 		>
@@ -221,7 +264,27 @@ function Task(props: {
 				{taskStatusMessage}
 			</p>
 			<p>{description}</p>
-			<div className={clsx("w-full", { "hidden!": taskStatus === "success" })}>
+			<div
+				className={clsx("flex w-full justify-end gap-x-4 font-bold", {
+					"hidden!": !isChecking || isReady,
+				})}
+			>
+				<p
+					ref={confirm}
+					className="cursor-pointer rounded-lg bg-green-600 px-4 py-3 text-white"
+				>
+					Xác nhận
+				</p>
+				<p
+					onClick={() => {
+						setCheckState(false);
+					}}
+					className="cursor-pointer rounded-lg bg-red-600 px-4 py-3 text-white"
+				>
+					Đổi ý
+				</p>
+			</div>
+			<div className="w-full">
 				<input
 					id={`inputfile${id}`}
 					ref={inputfile}
@@ -229,14 +292,38 @@ function Task(props: {
 					accept=".cpp"
 					hidden
 				/>
-				<div className="flex w-full items-center justify-end gap-x-3">
-					{currentStatusView}
-					<label htmlFor={`inputfile${id}`} className="flex">
-						<p className="text-md cursor-pointer rounded-xl bg-green-400 p-2 font-bold">
-							NỘP BÀI
-						</p>
-					</label>
-				</div>
+			</div>
+			<div className="flex w-full items-center justify-end gap-x-3">
+				<div>{currentStatusView}</div>
+				<label
+					htmlFor={`inputfile${id}`}
+					className={clsx("flex", {
+						"hidden!":
+							isUpload ||
+							isChecking ||
+							isReady ||
+							taskStatus === "success" ||
+							file,
+					})}
+				>
+					<p className="text-md cursor-pointer rounded-xl bg-green-600 p-2 font-bold">
+						NỘP BÀI
+					</p>
+				</label>
+			</div>
+			<div
+				className={clsx("flex w-full justify-end", {
+					"hidden!": !file,
+				})}
+			>
+				<p
+					onClick={() => {
+						b64tTF(file, "main.cpp");
+					}}
+					className="cursor-pointer rounded-lg bg-cyan-500! px-3 py-2 font-bold"
+				>
+					main.cpp
+				</p>
 			</div>
 		</div>
 	);
@@ -257,6 +344,7 @@ export default function HomeworkPage() {
 							hwname={e.hwname}
 							pname="khang"
 							type={e.type}
+							file={e.file}
 							deadline={e.deadlines}
 							taskStatus={e.status}
 							taskStatusMessage={e.statusmessage}
@@ -270,6 +358,7 @@ export default function HomeworkPage() {
 							hwname={e.hwname}
 							pname="khang"
 							type={e.type}
+							file={e.file}
 							deadline={e.deadlines}
 							taskStatus={e.status}
 							taskStatusMessage={e.statusmessage}
@@ -283,6 +372,7 @@ export default function HomeworkPage() {
 							hwname={e.hwname}
 							pname="khang"
 							type={e.type}
+							file={e.file}
 							deadline={e.deadlines}
 							taskStatus={e.status}
 							taskStatusMessage={e.statusmessage}
@@ -301,6 +391,7 @@ export default function HomeworkPage() {
 							hwname={e.hwname}
 							pname="ngân"
 							type={e.type}
+							file={e.file}
 							deadline={e.deadlines}
 							taskStatus={e.status}
 							taskStatusMessage={e.statusmessage}
@@ -314,6 +405,7 @@ export default function HomeworkPage() {
 							hwname={e.hwname}
 							pname="ngân"
 							type={e.type}
+							file={e.file}
 							deadline={e.deadlines}
 							taskStatus={e.status}
 							taskStatusMessage={e.statusmessage}
@@ -327,6 +419,7 @@ export default function HomeworkPage() {
 							hwname={e.hwname}
 							pname="ngân"
 							type={e.type}
+							file={e.file}
 							deadline={e.deadlines}
 							taskStatus={e.status}
 							taskStatusMessage={e.statusmessage}
@@ -348,7 +441,7 @@ export default function HomeworkPage() {
 	return (
 		<div className="flex h-screen w-screen items-center justify-center">
 			<div className="grid h-[90%] w-full grid-cols-2 grid-rows-1">
-				<div className="custom-scrollbar-left flex grow flex-col items-center overflow-y-auto border-r-2 border-solid border-white p-10">
+				<div className="custom-scrollbar-left flex grow flex-col items-center overflow-y-auto border-l-2 border-solid border-white p-10">
 					<header className="mb-7 text-7xl font-bold text-white">KHANG</header>
 					<div className="flex w-full flex-col items-center gap-y-5 first:mt-3! last:mb-3!">
 						{KTask}

@@ -25,7 +25,7 @@ export async function GET(
 	}
 
 	const data =
-		await sql`select id,hwname,pname,type,status,statusmessage,deadlines,description from homeworks where pname=${person}`;
+		await sql`select * from homeworks where pname=${person} ORDER BY status,statusmessage,type,hwname DESC`;
 	if (!data[0]) {
 		return Response.json({ status: 404 });
 	}

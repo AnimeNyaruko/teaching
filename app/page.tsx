@@ -12,7 +12,9 @@ export default function Page() {
 
 	useEffect(() => {
 		const fetchHWnumber = async () => {
-			const response = await fetch("/api/homeworks/counts");
+			const response = await fetch("/api/homeworks/counts", {
+				cache: "default",
+			});
 			const data = await response.json();
 			setKTask(data.body.Khang);
 			setNTask(data.body.Ngân);
