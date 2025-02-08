@@ -5,7 +5,7 @@ import { deleteSession } from "@/libs/authencation";
 import { useActionState, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-function Task() {}
+// function Task() {}
 
 export default function Page() {
 	const route = useRouter();
@@ -60,7 +60,7 @@ export default function Page() {
 							KHANG
 						</header>
 						<div className="flex w-full flex-col items-center gap-y-5 first:mt-3! last:mb-3!">
-							<Task />
+							{/* <Task /> */}
 						</div>
 					</div>
 					<div className="custom-scrollbar-right flex grow flex-col items-center overflow-y-auto border-l-2 border-solid border-white p-10">
